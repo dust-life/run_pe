@@ -31,7 +31,7 @@ alias run_pe {
 		else
 		{
 			bdllspawn($1,script_resource("reflective_dll.x64.dll"),$test, "", 1000, false);
-			blog($1,"usage upload_file ".$2." \\\\.\\pipe\\mynamedpipe")
+			blog($1,"Please run: upload_file ".$2." \\\\.\\pipe\\mynamedpipe")
 			#bupload_raw($1, "\\\\.\\pipe\\mynamedpipe", $data);
 		}
 	}
