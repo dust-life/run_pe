@@ -61,9 +61,7 @@ bool read_remote_mem(HANDLE hProcess, ULONGLONG remote_addr, OUT void* buffer, c
 
 BOOL update_remote_entry_point(PROCESS_INFORMATION& pi, ULONGLONG entry_point_va, bool is32bit)
 {
-#ifdef _DEBUG
     printf("Writing new EP: %x\n", entry_point_va);
-#endif
 #if defined(_WIN64)
     if (is32bit) {
         // The target is a 32 bit executable while the loader is 64bit,
@@ -201,9 +199,7 @@ bool _run_pe(BYTE* loaded_pe, size_t payloadImageSize, PROCESS_INFORMATION& pi, 
         std::cerr << "Could not allocate memory in the remote process\n";
         return false;
     }
-#ifdef _DEBUG
     printf("Allocated remote ImageBase: %p size: %lx\n", remoteBase, static_cast<ULONG>(payloadImageSize));
-#endif
     //2. Relocate the payload (local copy) to the Remote Base:
     if (!relocate_module(loaded_pe, payloadImageSize, (ULONGLONG)remoteBase)) {
         std::cout << "Could not relocate the module!\n";
@@ -222,9 +218,7 @@ bool _run_pe(BYTE* loaded_pe, size_t payloadImageSize, PROCESS_INFORMATION& pi, 
         std::cout << "Writing to the remote process failed!\n";
         return false;
     }
-#ifdef _DEBUG
     printf("Loaded at: %p\n", loaded_pe);
-#endif
     //5. Redirect the remote structures to the injected payload (EntryPoint and ImageBase must be changed):
     if (!redirect_to_payload(loaded_pe, remoteBase, pi, is32bit)) {
         std::cerr << "Redirecting failed!\n";
